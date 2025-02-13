@@ -8,47 +8,63 @@ const users = require('./users');
 function initSocket(socket) {
   let id;
 
-  socket
-    .on('init', async () => {
-      id = await users.create(socket);
-      if (id) {
-        socket.emit('init', { id });
-      } else {
-        socket.emit('error', { message: 'Failed to generating user id' });
-      }
-    })
-    .on('updateID', (newID) => {
-      // Cập nhật ID của người dùng
-      if (users.get(id)) {
-        users.update(id, newID); // Cập nhật ID trong danh sách người dùng
-        id = newID; // Thay đổi ID
-        socket.emit('init', { id: newID }); // Cập nhật ID trên client
-      }
-    })
-    .on('request', (data) => {
-      const receiver = users.get(data.to);
-      if (receiver) {
-        receiver.emit('request', { from: id });
-      }
-    })
-    .on('call', (data) => {
-      const receiver = users.get(data.to);
-      if (receiver) {
-        receiver.emit('call', { ...data, from: id });
-      } else {
-        socket.emit('failed');
-      }
-    })
-    .on('end', (data) => {
-      const receiver = users.get(data.to);
-      if (receiver) {
-        receiver.emit('end');
-      }
-    })
-    .on('disconnect', () => {
-      users.remove(id);
-      console.log(id, 'disconnected');
-    });
+  // Initialize with a provided name or random ID
+  socket.on('init', async (data = {}) => {
+    const { name } = data;  // Accept name from frontend
+    if (!name) {
+      console.log('Name not provided, generating random ID.');
+      id = await users.create(socket);  // Generate random ID
+    } else {
+      console.log('Name provided:', name);
+      id = name;  // Use provided name
+      users.createWithID(socket, id);  // Ensure name is added to users list
+    }
+
+    if (id) {
+      socket.emit('init', { id });  // Emit the ID to the frontend
+    } else {
+      socket.emit('error', { message: 'Failed to generate user ID' });
+    }
+  });
+
+  // Allow ID updates
+  socket.on('updateID', (newID) => {
+    if (users.get(id) && id != newID) {
+      users.update(id, newID);  // Update the user's ID
+      id = newID;  // Change the current socket's ID reference
+      socket.emit('init', { id: newID });  // Notify the frontend of the updated ID
+    }
+  });
+
+  // Handle other events
+  socket.on('request', (data) => {
+    const receiver = users.get(data.to);
+    if (receiver) {
+      receiver.emit('request', { from: id });
+    }
+  });
+
+  socket.on('call', (data) => {
+    const receiver = users.get(data.to);
+    if (receiver) {
+      receiver.emit('call', { ...data, from: id });
+    } else {
+      socket.emit('failed');
+    }
+  });
+
+  socket.on('end', (data) => {
+    const receiver = users.get(data.to);
+    if (receiver) {
+      receiver.emit('end');
+    }
+  });
+
+  // Cleanup on disconnect
+  socket.on('disconnect', () => {
+    users.remove(id);
+    console.log(id, 'disconnected');
+  });
 }
 
 module.exports = (server) => {
