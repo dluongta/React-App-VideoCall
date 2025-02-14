@@ -37,7 +37,5 @@ exports.update = (oldID, newID) => {
 };
 
 exports.createWithID = (socket, id) => {
-  if (!users[id]) {  // Ensure the ID is not already taken
     users[id] = socket;
-  }
 };

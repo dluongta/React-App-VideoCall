@@ -53,13 +53,7 @@ function MainWindow({ startCall }) {
     inputRef.current?.focus();
   }, []);
 
-  useEffect(() => {
-    if (userInfo) {
-      updateClientID(userInfo.name)
-    }
-  }, [userInfo]);  // Log client ID changes
-
-  // Log client ID and friend ID changes
+    // Log client ID and friend ID changes
   useEffect(() => {
     console.log('Client ID updated:', clientID);
   }, [clientID]);  // Log client ID changes
