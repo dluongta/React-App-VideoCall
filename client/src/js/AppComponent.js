@@ -7,7 +7,7 @@ import CallModal from './components/CallModal';
 import { Link } from 'react-router-dom';  // Import Link from react-router-dom
 import { useDispatch, useSelector } from 'react-redux';  // Import for Redux
 import { logout } from './actions/userActions';  // Import the logout action
-
+import { useEffect } from 'react';
 // Functional NavBar Component
 const NavBar = () => {
   const dispatch = useDispatch();
@@ -16,10 +16,24 @@ const NavBar = () => {
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
 
+  useEffect(() => {
+    // Check if user is logged in and trigger reload only once
+    if (userInfo && !sessionStorage.getItem('pageReloaded')) {
+      // Mark page as reloaded to prevent multiple reloads
+      sessionStorage.setItem('pageReloaded', 'true');
+      window.location.reload();
+    }
+  }, [userInfo]); // Trigger the effect when userInfo changes
+
+  
   // Handle logout
   const logoutHandler = () => {
     dispatch(logout());
+    sessionStorage.removeItem('pageReloaded'); // Reset page reload flag on logout
+
   };
+
+  
 
   return (
     <nav style={{ display: 'flex', justifyContent: 'space-evenly', padding: '10px', background: '#f4f4f4' }}>
@@ -58,13 +72,15 @@ class AppComponent extends Component {
     this.rejectCallHandler = this.rejectCall.bind(this);
   }
 
+  
+
   componentDidMount() {
     // Get the user name from localStorage or Redux store for initialization
     const userName = localStorage.getItem('userName');
     if (userName) {
       this.setState({ userName }); // Set the user's name
-    }
 
+    }
     socket
       .on('request', ({ from: callFrom }) => {
         this.setState({ callModal: 'active', callFrom });
