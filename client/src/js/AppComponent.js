@@ -40,7 +40,7 @@ const NavBar = () => {
   );
 };
 
-class App extends Component {
+class AppComponent extends Component {
   constructor() {
     super();
     this.state = {
@@ -146,4 +146,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default AppComponent;
