@@ -26,12 +26,15 @@ const Login = () => {
     dispatch(login(name, password)); // Dispatch login action
   };
 
+  // Responsive Styles (inline)
   const loginContainerStyle = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     height: '100vh',
     padding: '0 20px',
+    flexDirection: 'row', // Default to row for larger screens
+    flexWrap: 'wrap', // Allow wrapping for smaller screens
   };
 
   const loginLeftStyle = {
@@ -40,24 +43,18 @@ const Login = () => {
     justifyContent: 'center',
     alignItems: 'center',
     padding: '20px',
+    width: '100%',
+    maxWidth: '400px',
   };
 
   const loginRightStyle = {
     flex: 1,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: '20px',
-  };
-
-  const loginFormStyle = {
-    width: '100%',
     maxWidth: '400px',
-    textAlign: 'center',
-    padding: '40px',
     backgroundColor: '#f9f9f9',
+    padding: '40px',
     borderRadius: '8px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+    width: '100%',
   };
 
   const inputGroupStyle = {
@@ -89,7 +86,6 @@ const Login = () => {
     fontSize: '14px',
   };
 
-  // Styling for the text link (Don't have an account? Sign up)
   const inputTextStyle = {
     color: 'black',
     marginTop: '10px',
@@ -97,12 +93,36 @@ const Login = () => {
   };
 
   return (
-    <div style={loginContainerStyle}>
-      <div style={loginLeftStyle}>
-        <img src="https://avatars.githubusercontent.com/u/185040659?v=4" alt="Login" style={{ width: '80%', height: 'auto', borderRadius: '8px' }} />
-      </div>
-      <div style={loginRightStyle}>
-        <div style={loginFormStyle}>
+    <>
+      <style>
+        {`
+          /* Mobile responsiveness */
+          @media (max-width: 768px) {
+            .login-container {
+              flex-direction: column !important; /* Change to column on mobile */
+            }
+
+            .login-left {
+              display: none !important; /* Hide image section on mobile */
+            }
+
+            .login-right {
+              width: 100% !important;
+              padding: 20px !important;
+            }
+          }
+        `}
+      </style>
+
+      <div style={loginContainerStyle} className="login-container">
+        <div style={loginLeftStyle} className="login-left">
+          <img
+            src="https://avatars.githubusercontent.com/u/185040659?v=4"
+            alt="Login"
+            style={{ width: '100%', height: 'auto', maxWidth: '400px', borderRadius: '8px' }}
+          />
+        </div>
+        <div style={loginRightStyle} className="login-right">
           <h3 style={{ color: 'black', textAlign: 'center' }}>Log In</h3>
           <form onSubmit={submitHandler}>
             <div style={inputGroupStyle}>
@@ -134,7 +154,7 @@ const Login = () => {
           </form>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
